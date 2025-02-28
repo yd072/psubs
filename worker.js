@@ -2916,26 +2916,41 @@ init_modules_watch_stub();
 var yaml = require_js_yaml();
 var src_default = {
   async fetch(request, env) {
+    // 如果没有配置环境变量,使用默认值
+    const SUB_BUCKET = env.SUB_BUCKET || {
+      put: async () => {},
+      get: async () => null,
+      delete: async () => {}
+    };
+    
+    // 设置默认后端
+    let backend = env.BACKEND || "https://sub.xeton.dev";
+    backend = backend.replace(/(https?:\/\/[^/]+).*$/, "$1");
+
     const url = new URL(request.url);
     const host = url.origin;
-    const frontendUrl = 'https://raw.githubusercontent.com/bulianglin/psub/main/frontend.html';
-    const SUB_BUCKET = env.SUB_BUCKET;
-    let backend = env.BACKEND.replace(/(https?:\/\/[^/]+).*$/, "$1");
+    const frontendUrl = 'https://raw.githubusercontent.com/yd072/psub/refs/heads/main/frontend.html';
     const subDir = "subscription";
     const pathSegments = url.pathname.split("/").filter((segment) => segment.length > 0);
+
+    // 以下逻辑基本保持不变
     if (pathSegments.length === 0) {
-      const response = await fetch(frontendUrl);
-      if (response.status !== 200) {
-        return new Response('Failed to fetch frontend', { status: response.status });
-      }
-      const originalHtml = await response.text();
-      const modifiedHtml = originalHtml.replace(/https:\/\/bulianglin2023\.dev/, host);
-      return new Response(modifiedHtml, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/html',
-        },
-      });
+      return fetch(frontendUrl)
+        .then(response => {
+          if (response.status !== 200) {
+            return new Response('Failed to fetch frontend', { status: response.status });
+          }
+          return response.text();
+        })
+        .then(originalHtml => {
+          const modifiedHtml = originalHtml.replace(/https:\/\/bulianglin2023\.dev/, host);
+          return new Response(modifiedHtml, {
+            status: 200,
+            headers: {
+              'Content-Type': 'text/html',
+            },
+          });
+        });
     } else if (pathSegments[0] === subDir) {
       const key = pathSegments[pathSegments.length - 1];
       const object = await SUB_BUCKET.get(key);
