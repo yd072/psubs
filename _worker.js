@@ -2924,7 +2924,7 @@ var src_default = {
     };
     
     // 设置默认后端
-    let backend = env.BACKEND || "https://sub.xeton.dev";
+    let backend = env.BACKEND;
     backend = backend.replace(/(https?:\/\/[^/]+).*$/, "$1");
 
     const url = new URL(request.url);
