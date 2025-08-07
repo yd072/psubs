@@ -2929,7 +2929,7 @@ var src_default = {
 
     const url = new URL(request.url);
     const host = url.origin;
-    const frontendUrl = 'https://raw.githubusercontent.com/yd072/psub/refs/heads/main/frontend.html';
+    const frontendUrl = 'https://raw.githubusercontent.com/yd072/psubs/refs/heads/main/frontend.html';
     const subDir = "subscription";
     const pathSegments = url.pathname.split("/").filter((segment) => segment.length > 0);
 
